@@ -1,5 +1,10 @@
 package com.KoreaIT.java.AM_jsp.servlet;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,20 +15,15 @@ import java.util.Map;
 import com.KoreaIT.java.AM_jsp.util.DBUtil;
 import com.KoreaIT.java.AM_jsp.util.SecSql;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+
 
 @WebServlet("/article/detail")
-public class ArticleDetailServlet extends HttpServlet {
+public class ArticleDetail extends HttpServlet {
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	
 		response.setContentType("text/html;charset=UTF-8");
-
-		// DB 연결
+		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -40,20 +40,21 @@ public class ArticleDetailServlet extends HttpServlet {
 
 		try {
 			conn = DriverManager.getConnection(url, user, password);
-			response.getWriter().append("연결 성공!");
-
+			
 			int id = Integer.parseInt(request.getParameter("id"));
-
-			SecSql sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("WHERE id = ?;", id);
-
+			
+			SecSql sql = SecSql.from("SELECT A.*, M.name");
+			sql.append("FROM article A");
+			sql.append("INNER JOIN `member` M");
+			sql.append("ON A.memberId = M.id");
+			sql.append("WHERE A.id = ?", id);
+			
 			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
-
-			request.setAttribute("articleRow", articleRow);
-
+			
+			request.setAttribute("articleRow",articleRow);
 			request.getRequestDispatcher("/jsp/article/detail.jsp").forward(request, response);
-
+			response.getWriter().append("jsp까지 안감");
+			
 		} catch (SQLException e) {
 			System.out.println("에러 1 : " + e);
 		} finally {
@@ -62,10 +63,13 @@ public class ArticleDetailServlet extends HttpServlet {
 					conn.close();
 				}
 			} catch (SQLException e) {
+				
 				e.printStackTrace();
 			}
 		}
-
+		
+		
 	}
+
 
 }

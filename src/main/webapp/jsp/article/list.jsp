@@ -1,98 +1,119 @@
 <%@page import="java.util.List"%>
-<%@page import="java.util.Map"%>
+<%@page import="java.util.Map" %>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%
-List<Map<String, Object>> articleRows = (List<Map<String, Object>>) request.getAttribute("articleRows");
+    pageEncoding="UTF-8"%>
 
+<%
+List<Map<String,Object>> aticleRows = (List<Map<String,Object>>) request.getAttribute("aticleRows");
 int cPage = (int) request.getAttribute("page");
 int totalCnt = (int) request.getAttribute("totalCnt");
 int totalPage = (int) request.getAttribute("totalPage");
+
+boolean isLogined = (boolean) request.getAttribute("isLogined");
+int loginedMemberId = (int) request.getAttribute("loginedMemberId");
+Map<String, Object> loginedMember = (Map<String, Object>) request.getAttribute("loginedMember");
 %>
+
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>게시글 목록</title>
-<style>
-table>thead>tr>th, table>tbody>tr>td {
-	padding: 5px;
-}
-</style>
+<title>목록</title>
 </head>
 <body>
-	<h2>게시글 목록</h2>
+
+
+<style>
+table, th, td { border: 2px solid orange; }
+table { 
+	border-collapse: collapse;
+	margin-right:auto;
+	margin-left:auto;
+	width: 80%;
+}
+
+
+th {text-align:left;}
+div{
+text-align:center;
+}
 
 
 
-	<a href="../home/main">메인으로 이동</a>
-	<a href="write">글쓰기</a>
+.page {
+font-size: 1.4rem;
+}
+.page > a {
+color: green;
+text-decoration: none;
+}
+.page > a.cpage {
+color:black;
+text-decoration: underline;
+}
 
-	<div>
-		총 게시글 갯수 :
-		<%=totalCnt%>
-	</div>
-
-	<table style="border-collapse: collapse; border-color: green;"
-		border="1px">
-		<thead>
+</style>
+<div>
+	<h1>목록</h1>
+	
+	<h4>총 게시물 :
+		<%=totalCnt %>
+	</h4>
+	
+	<%
+	if (isLogined){
+	%>
+	<div><%=loginedMember.get("name")%>님 로그인 중</div>
+	<div><a href="../member/doLogout">로그아웃</a></div>
+	<% 
+	}
+	%>
+		
+	<%
+	if (!isLogined){
+	%>
+	<div><a href="../member/login">로그인</a></div>
+	<% 
+	}
+	%>
+	
+	<div><a href="../home/main">메인화면</a></div>
+	
+</div>
+	<table>
+		<thead  class=con>
 			<tr>
 				<th>번호</th>
 				<th>날짜</th>
+				<th>작성자</th>
 				<th>제목</th>
-				<th>내용</th>
-				<th>수정</th>
-				<th>삭제</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody >
 			<%
-			for (Map<String, Object> articleRow : articleRows) {
+			for (Map<String,Object> aticleRow : aticleRows){ // 압축해제
 			%>
-			<tr style="text-align: center;">
-				<td><%=articleRow.get("id")%>번</td>
-				<td><%=articleRow.get("regDate")%></td>
-				<td><a href="detail?id=<%=articleRow.get("id")%>"><%=articleRow.get("title")%></a></td>
-				<td><%=articleRow.get("body")%></td>
-				<td><a href="modify?id=<%=articleRow.get("id")%>">수정</a></td>
-				<td><a
-						onclick="if ( confirm('정말 삭제하시겠습니까?') == false ) { return false; }"
-						href="doDelete?id=<%=articleRow.get("id")%>">del</a></td>
+			<tr>
+				<td><%=aticleRow.get("id")%>번</td>
+				<td><%=aticleRow.get("regDate")%></td>
+				<td><%=aticleRow.get("name")%></td>
+				<td><a href="detail?id=<%=aticleRow.get("id")%>"><%=aticleRow.get("title")%></a></td>
 			</tr>
 			<%
 			}
-			%>
+			%>			
 		</tbody>
 	</table>
-
-	<style type="text/css">
-.page {
-	font-size: 1.4rem;
-}
-
-.page>a {
-	color: black;
-	text-decoration: none;
-}
-
-.page>a.cPage {
-	color: red;
-	text-decoration: underline;
-}
-</style>
-
+	
 	<div class="page">
-		<%
-		for (int i = 1; i <= totalPage; i++) {
-		%>
-		<a class="<%=cPage == i ? "cPage" : ""%>" href="list?page=<%=i%>"><%=i%></a>
-		<%
-		}
-		%>
-
+		<% for(int i = 1; i < totalPage; i++ ){ %>
+		<a class="<%=cPage == 1 ?"cPage" : ""%>" href="list?page=<%=i%>"><%=i%></a>
+		<% }%>
 	</div>
-
+	
+	<div><a href="write">글쓰기</a></div>
 
 </body>
 </html>

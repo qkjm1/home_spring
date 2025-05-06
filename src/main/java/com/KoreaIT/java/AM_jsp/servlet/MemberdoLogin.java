@@ -5,6 +5,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,15 +16,14 @@ import java.util.Map;
 import com.KoreaIT.java.AM_jsp.util.DBUtil;
 import com.KoreaIT.java.AM_jsp.util.SecSql;
 
-@WebServlet("/article/modify")
-public class ArticleModifyServlet extends HttpServlet {
+@WebServlet("/member/doLogin")
+public class MemberdoLogin extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		response.setContentType("text/html;charset=UTF-8");
 
-		// DB 연결
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -40,21 +41,34 @@ public class ArticleModifyServlet extends HttpServlet {
 		try {
 			conn = DriverManager.getConnection(url, user, password);
 
-			int id = Integer.parseInt(request.getParameter("id"));
+			String loginId = request.getParameter("loginId");
+			String loginPw = request.getParameter("loginPw");
 
 			SecSql sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("WHERE id = ?;", id);
+			sql.append("FROM `member`");
+			sql.append("WHERE loginId = ?;", loginId);
 
-			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
+			Map<String, Object> memberRow = DBUtil.selectRow(conn, sql);
 
-			request.setAttribute("articleRow", articleRow);
-			
-			if(articleRow == null) {
-				// todo
+			if (memberRow.isEmpty()) {
+				response.getWriter().append(String.format(
+						"<script>alert('%s는 없는 아이디입니다'); location.replace('../member/login');</script>", loginId));
+				return;
+			}
+			if (memberRow.get("loginPw").equals(loginPw) == false) {
+				response.getWriter().append(
+						String.format("<script>alert('비밀번호가 불일치합니다'); location.replace('../member/login');</script>"));
+				return;
 			}
 
-			request.getRequestDispatcher("/jsp/article/modify.jsp").forward(request, response);
+			HttpSession session = request.getSession();
+
+			session.setAttribute("loginMember", memberRow);
+			session.setAttribute("loginMemberId", memberRow.get("id"));
+			session.setAttribute("loginMemberLoginId", memberRow.get("loginId"));
+
+			response.getWriter().append(String.format(
+ 					"<script>alert('%s님 로그인됨'); location.replace('../home/main');</script>", memberRow.get("name")));
 
 		} catch (SQLException e) {
 			System.out.println("에러 1 : " + e);
@@ -64,10 +78,16 @@ public class ArticleModifyServlet extends HttpServlet {
 					conn.close();
 				}
 			} catch (SQLException e) {
+
 				e.printStackTrace();
 			}
 		}
 
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doGet(request, response);
 	}
 
 }
