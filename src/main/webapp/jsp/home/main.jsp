@@ -1,13 +1,9 @@
+<%@page import="java.util.*"%>
+
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     
-<%@page import="java.util.*"%>    
     
-<%
-boolean isLogined = (boolean) request.getAttribute("isLogined");
-int loginedMemberId = (int) request.getAttribute("loginedMemberId");
-Map<String, Object> loginedMember = (Map<String, Object>) request.getAttribute("loginedMember");
-%>
     
 <!DOCTYPE html>
 <html>
@@ -16,28 +12,9 @@ Map<String, Object> loginedMember = (Map<String, Object>) request.getAttribute("
 <title>메인화면</title>
 </head>
 <body>
-		<h1>메인 페이지</h1>
-
-		<%
-		if (isLogined){
-		%>
-		<div><%=loginedMember.get("name")%>님 로그인 중</div>
-		<div><a href="../member/doLogout">로그아웃</a></div>
-		<% 
-		}
-		%>
+		<h1>메인 페이지</h1>		
 		
-		<%
-		if (!isLogined){
-		%>
-		<div><a href="../member/login">로그인</a></div>
-		<% 
-		}
-		%>
-		
-		
-		
-		
+	<%@ include file="../part/top_bar.jspf" %>
 		
 	<ul>
 		

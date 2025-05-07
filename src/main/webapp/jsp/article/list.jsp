@@ -9,10 +9,6 @@ List<Map<String,Object>> aticleRows = (List<Map<String,Object>>) request.getAttr
 int cPage = (int) request.getAttribute("page");
 int totalCnt = (int) request.getAttribute("totalCnt");
 int totalPage = (int) request.getAttribute("totalPage");
-
-boolean isLogined = (boolean) request.getAttribute("isLogined");
-int loginedMemberId = (int) request.getAttribute("loginedMemberId");
-Map<String, Object> loginedMember = (Map<String, Object>) request.getAttribute("loginedMember");
 %>
 
 
@@ -62,22 +58,7 @@ text-decoration: underline;
 		<%=totalCnt %>
 	</h4>
 	
-	<%
-	if (isLogined){
-	%>
-	<div><%=loginedMember.get("name")%>님 로그인 중</div>
-	<div><a href="../member/doLogout">로그아웃</a></div>
-	<% 
-	}
-	%>
-		
-	<%
-	if (!isLogined){
-	%>
-	<div><a href="../member/login">로그인</a></div>
-	<% 
-	}
-	%>
+	<%@ include file="../part/top_bar.jspf" %>
 	
 	<div><a href="../home/main">메인화면</a></div>
 	
